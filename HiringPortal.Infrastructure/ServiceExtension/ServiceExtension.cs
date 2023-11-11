@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using HiringPortal.Core.Interfaces;
 using HiringPortal.Infrastructure.Repositories;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace HiringPortal.Infrastructure.ServiceExtension
 {
@@ -15,12 +17,19 @@ namespace HiringPortal.Infrastructure.ServiceExtension
     {
         public static IServiceCollection AddDIServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<DbContextClass>(options =>
+            services.AddScoped((s) => new SqlConnection(configuration.GetConnectionString("DapperConnection")));
+            services.AddScoped<IDbTransaction>(s =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                SqlConnection conn = s.GetRequiredService<SqlConnection>();
+                conn.Open();
+                return conn.BeginTransaction();
             });
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICandidateRepository, CandidateRepository>();
+
+            
+
             return services;
         }
     }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using HiringPortal.Core.Interfaces;
 using HiringPortal.Core.Models;
 using HiringPortal.Services.Interfaces;
@@ -24,7 +20,7 @@ namespace HiringPortal.Services
             {
                 await _unitOfWork.Candidate.AddAsync(candidate);
 
-                var result = _unitOfWork.Save();
+                var result = _unitOfWork.Commit();
 
                 if (result > 0)
                     return true;
@@ -40,7 +36,7 @@ namespace HiringPortal.Services
             {
                 
                     await _unitOfWork.Candidate.DeleteAsync(id);
-                      var result = _unitOfWork.Save();
+                      var result = _unitOfWork.Commit();
 
                     if (result > 0)
                         return true;
@@ -77,14 +73,17 @@ namespace HiringPortal.Services
                 var can = await _unitOfWork.Candidate.GetByIdAsync(candidate.Id);
                 if (can != null)
                 {
-                    //product.ProductName= productDetails.ProductName;
-                    //product.ProductDescription= productDetails.ProductDescription;
-                    //product.ProductPrice= productDetails.ProductPrice;
-                    //product.ProductStock= productDetails.ProductStock;
+                    can.FirstName= candidate.FirstName;
+                    can.LastName = can.LastName;
+                    can.PhoneNumber = candidate.PhoneNumber;
+                    can.Address = candidate.Address;
+                    can.EmailID = candidate.EmailID;
+                    can.ModifiedBy = "dbuser";
+                    can.ModifiedDate = candidate.ModifiedDate;
 
                    await  _unitOfWork.Candidate.UpdateAsync(candidate);
 
-                    var result = _unitOfWork.Save();
+                    var result = _unitOfWork.Commit();
 
                     if (result > 0)
                         return true;

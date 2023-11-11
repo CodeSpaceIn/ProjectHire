@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HiringPortal.Core.Models;
 using HiringPortal.Services.Interfaces;
-using HiringPortal.Core.Interfaces;
-
+using Repo.HiringPortalAPI.Extension;
+using Microsoft.Extensions.Logging;
+using Repo.HiringPortalAPI.Utility;
 
 namespace HiringPortal.Controllers
 {
@@ -25,8 +26,17 @@ namespace HiringPortal.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var data = await _candiateService.GetAllCandidates();
-               return Ok(data);
+            try
+            {
+                var data = await _candiateService.GetAllCandidates();
+                return Ok(data.ToResponse());
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message.ToErrorResponse());
+            }
+
         }
         /// <summary>
         /// Get candidate by id
@@ -36,15 +46,22 @@ namespace HiringPortal.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCandidateById(int id)
         {
-            var canDetails = await _candiateService.GetCandidateById(id);
+            try
+            {
+                var canDetails = await _candiateService.GetCandidateById(id);
 
-            if (canDetails != null)
-            {
-                return Ok(canDetails);
+                if (canDetails != null)
+                {
+                    return Ok(canDetails.ToResponse());
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message.ToErrorResponse());
             }
         }
 
@@ -56,15 +73,23 @@ namespace HiringPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCandiate(Candidate canDetails)
         {
-            var iscandiatetCreated = await _candiateService.CreateCandidate(canDetails);
+            try
+            {
+                var iscandiatetCreated = await _candiateService.CreateCandidate(canDetails);
 
-            if (iscandiatetCreated)
+                if (iscandiatetCreated)
+                {
+                    return Ok(iscandiatetCreated.ToResponse());
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }catch(Exception ex)
             {
-                return Ok(iscandiatetCreated);
-            }
-            else
-            {
-                return BadRequest();
+
+                return BadRequest(ex.Message.ToErrorResponse());
+
             }
         }
 
@@ -76,18 +101,25 @@ namespace HiringPortal.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateCandidtate(Candidate canDetails)
         {
-            if (canDetails != null)
+            try
             {
-                var iscanUpdated = await _candiateService.UpdateCandidate(canDetails);
-                if (iscanUpdated)
+                if (canDetails != null)
                 {
-                    return Ok(iscanUpdated);
+                    var iscanUpdated = await _candiateService.UpdateCandidate(canDetails);
+                    if (iscanUpdated)
+                    {
+                        return Ok(iscanUpdated.ToResponse());
+                    }
+                    return BadRequest();
                 }
-                return BadRequest();
-            }
-            else
+                else
+                {
+                    return BadRequest();
+                }
+            }catch(Exception ex)
             {
-                return BadRequest();
+
+                return BadRequest(ex.Message.ToErrorResponse());
             }
         }
 
@@ -99,15 +131,23 @@ namespace HiringPortal.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCandidate(int id)
         {
-            var isCandeleted = await _candiateService.DeleteCandidate(id);
+            try
+            {
+                var isCandeleted = await _candiateService.DeleteCandidate(id);
 
-            if (isCandeleted)
-            {
-                return Ok(isCandeleted);
+                if (isCandeleted)
+                {
+                    return Ok(isCandeleted);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message.ToErrorResponse());
+
             }
         }
     }

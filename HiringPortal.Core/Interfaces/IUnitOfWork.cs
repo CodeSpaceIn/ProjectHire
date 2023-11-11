@@ -3,9 +3,10 @@ using HiringPortal.Core.Interfaces;
 
 namespace HiringPortal.Core.Interfaces
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork 
     {
         ICandidateRepository Candidate { get; }
-        int Save();
+        int Commit();
+
     }
 }

@@ -1,7 +1,8 @@
 ﻿using Dapper;
 using HiringPortal.Core.Interfaces;
 using HiringPortal.Core.Models;
-using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace HiringPortal.Infrastructure.Repositories
@@ -9,13 +10,21 @@ namespace HiringPortal.Infrastructure.Repositories
     public class CandidateRepository : ICandidateRepository
     {
         // Make it possible to read a connection string from configuration
-        private readonly IConfiguration _configuration;
+      //  private readonly IConfiguration _configuration;
 
-        public CandidateRepository(IConfiguration configuration)
+        private SqlConnection connection;
+
+        private IDbTransaction _dbTransaction;
+
+        public CandidateRepository( IDbTransaction dbTransaction, SqlConnection sqlConnection)
         {
-            // Injecting Iconfiguration to the contructor of the product repository
-            _configuration = configuration;
+            
+
+            //Transactions 
+            _dbTransaction = dbTransaction;
+            connection = sqlConnection;
         }
+
 
         /// <summary>
         /// This method adds a new Candiadate to the database using Dapper
@@ -24,18 +33,9 @@ namespace HiringPortal.Infrastructure.Repositories
         /// <returns>int</returns>
         public async Task<int> AddAsync(Candidate entity)
         {
-            // Basic SQL statement to insert a product into the products table
-            var sql = "Insert into dbo.Candidate (FirstName,LastName,EmailID,PrimarySkill,PhoneNumber,Active) VALUES (@FirstName,@LastName,@EmailID,@PrimarySkill,@PhoneNumber,@Active);";
-
-            // Sing the Dapper Connection string we open a connection to the database
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DapperConnection")))
-            {
-                connection.Open();
-
-                // Pass the product object and the SQL statement into the Execute function (async)
-                var result = await connection.ExecuteAsync(sql, new  { FirstName = entity.FirstName, LastName =entity.LastName,EmailID= entity.EmailID, PrimarySkill=entity.PrimarySkill,Active= entity.Active,entity.PhoneNumber });
+                var result = await connection.ExecuteAsync(CandidateQueries.CreateCandidate, new { FirstName = entity.FirstName, LastName = entity.LastName, EmailID = entity.EmailID, PrimarySkill = entity.PrimarySkill, Active = entity.Active, entity.PhoneNumber },commandType:CommandType.Text,transaction:_dbTransaction);
                 return result;
-            }
+         
         }
 
         /// <summary>
@@ -45,13 +45,8 @@ namespace HiringPortal.Infrastructure.Repositories
         /// <returns>int</returns>
         public async Task<int> DeleteAsync(int id)
         {
-            var sql = "DELETE FROM dbo.Candidates WHERE Id = @Id";
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DapperConnection")))
-            {
-                connection.Open();
-                var result = await connection.ExecuteAsync(sql, new { Id = id });
-                return result;
-            }
+            var result = await connection.ExecuteAsync(CandidateQueries.DeleteCandidate, new { Id = id }, commandType: CommandType.Text, transaction: _dbTransaction);
+             return result;
         }
 
         /// <summary>
@@ -60,16 +55,10 @@ namespace HiringPortal.Infrastructure.Repositories
         /// <returns>IEnumerable Product</returns>
         public async Task<IReadOnlyList<Candidate>> GetAllAsync()
         {
-            var sql = "SELECT d.Id,d.[FirstName], d.[LastName],d.[EmailID],d.PrimarySkill,d.[PhoneNumber],d.[Address],d.[Active] from dbo.Candidate d;\r\n";
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DapperConnection")))
-            {
-                connection.Open();
-
-                // Map all products from database to a list of type Product defined in Models.
-                // this is done by using Async method which is also used on the GetByIdAsync
-                var result = await connection.QueryAsync<Candidate>(sql);
-                return result.ToList();
-            }
+          
+            var result = await connection.QueryAsync<Candidate>(CandidateQueries.AllCandidates, commandType: CommandType.Text, transaction: _dbTransaction);
+            return result.ToList();
+            
         }
 
         /// <summary>
@@ -79,36 +68,27 @@ namespace HiringPortal.Infrastructure.Repositories
         /// <returns>Product</returns>
         public async Task<Candidate> GetByIdAsync(int id)
         {
-            var sql = "SELECT d.Id,d.[FirstName], d.[LastName],d.[EmailID],d.PrimarySkill,d.[PhoneNumber],d.[Address],d.[Active] from dbo.Candidate d WHERE d.Id = @Id;";
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DapperConnection")))
-            {
-                connection.Open();
-                var result = await connection.QuerySingleOrDefaultAsync<Candidate>(sql, new { Id = id });
+            
+                var result = await connection.QuerySingleOrDefaultAsync<Candidate>(CandidateQueries.CandidateById, new { Id = id }, commandType: CommandType.Text, transaction: _dbTransaction);
                 return result;
-            }
+         
         }
 
-        public Task<int> UpdateAsync(Candidate entity)
+        /// <summary>
+        /// This method updates a canidiate specified by an ID. Added column won't be touched.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns>int</returns>
+        public async Task<int> UpdateAsync(Candidate entity)
         {
-            throw new NotImplementedException();
-        }
+               entity.ModifiedBy = "dbuser";
+                entity.ModifiedDate = DateTime.Now;
 
-        ///// <summary>
-        ///// This method updates a product specified by an ID. Added column won't be touched.
-        ///// </summary>
-        ///// <param name="entity"></param>
-        ///// <returns>int</returns>
-        //public async Task<int> UpdateAsync(Candidate entity)
-        //{
-        //    entity.Modified = DateTime.Now;
-        //    var sql = "UPDATE Products SET Name = @Name, Description = @Description, Barcode = @Barcode, Price = @Price, Modified = @Modified  WHERE Id = @Id";
-        //    using (var connection = new SqlConnection(_configuration.GetConnectionString("DapperConnection")))
-        //    {
-        //        connection.Open();
-        //        var result = await connection.ExecuteAsync(sql, entity);
-        //        return result;
-        //    }
-        //}
+           
+                var result = await connection.ExecuteAsync(CandidateQueries.UpdateCandidate, entity,commandType: CommandType.Text,transaction:_dbTransaction);
+                return result;
+       
+        }
 
     }
 }

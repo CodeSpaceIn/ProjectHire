@@ -1,32 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HiringPortal.Core.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace HiringPortal.Infrastructure.Repositories
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork,IDisposable
     {
-        private readonly AdoNetContext _dbContext;
-        //public ICandidateRepository Candidate { get; }
+        public ICandidateRepository Candidate { get; }
+          IDbTransaction _dbTransaction;
 
-        public UnitOfWork(AdoNetContext dbContext,
-                            ICandidateRepository candidateRepository)
+      //  private IDbConnection _connection;
+
+       private readonly IConfiguration _configuration;
+
+        public UnitOfWork(IDbTransaction dbTransaction,
+                            ICandidateRepository candidateRepository   )
         {
-            _dbContext = dbContext;
+            _dbTransaction = dbTransaction;
             Candidate = candidateRepository;
-        }
 
-        public int Save()
+ 
+        }
+       
+        public int Commit()
         {
             try
             {
-                //_dbContext.SaveChanges();
-                 return 1;
+                _dbTransaction.Commit();
+                // By adding this we can have muliple transactions as part of a single request
+                _dbTransaction.Connection.BeginTransaction();
+
+                return 1;
             }
-            catch {
+            catch (Exception ex)
+            {
+               _dbTransaction.Rollback();
 
                 return 0;
             }
@@ -34,25 +49,12 @@ namespace HiringPortal.Infrastructure.Repositories
 
         public void Dispose()
         {
-            Dispose(true);
+            //Close the SQL Connection and dispose the objects
+            _dbTransaction.Connection?.Close();
+            _dbTransaction.Connection?.Dispose();
+            _dbTransaction.Dispose();
             GC.SuppressFinalize(this);
         }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                //_dbContext.Dispose();
-            }
-        }
-
-
-        public UnitOfWork(ICandidateRepository candidateRepository)
-            {
-              Candidate = candidateRepository;
-           }
-
-           public ICandidateRepository Candidate { get; }
 
     }
 }

@@ -1,12 +1,31 @@
+using HiringPortal.Core.Interfaces;
+using HiringPortal.Infrastructure.Repositories;
 using HiringPortal.Infrastructure.ServiceExtension;
 using HiringPortal.Services;
 using HiringPortal.Services.Interfaces;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Add services to the container.
 builder.Services.AddDIServices(builder.Configuration);
 builder.Services.AddScoped<ICandidateService, CandidateService>();
+//builder.Services.AddScoped<IDbTransaction, DbTransaction>();
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+//builder.Services.AddScoped((s) => new SqlConnection("DapperConnection"));
+//builder.Services.AddScoped<IDbTransaction>(s =>
+//{
+//    SqlConnection conn = s.GetRequiredService<SqlConnection>();
+//    conn.Open();
+//    return conn.BeginTransaction();
+//});
+
+
 
 
 
