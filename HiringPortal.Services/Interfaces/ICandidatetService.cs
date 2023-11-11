@@ -18,5 +18,7 @@ namespace HiringPortal.Services.Interfaces
         Task<bool> UpdateCandidate(Candidate candidate);
 
         Task<bool> DeleteCandidate(int id);
+
+       
     }
 }

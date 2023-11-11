@@ -21,4 +21,14 @@ namespace HiringPortal.Infrastructure
 
         public static string DeleteCandidate => @"DELETE FROM dbo.Candidates WHERE Id = @Id";
     }
+
+
+    public static class StoredProc
+    {
+
+        public static string getAllCandidatesSkillset => "[dbo].[Sp_GetAllCandidatesSkillSet]";
+
+
+
+    }
 }

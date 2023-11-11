@@ -49,10 +49,31 @@ namespace HiringPortal.Services
 
         public async Task<IEnumerable<Candidate>> GetAllCandidates()
         {
-            var CandiateList = await _unitOfWork.Candidate.GetAllAsync();
-            return CandiateList;
+             //Get Candidate List
+            var CandidateList = await _unitOfWork.Candidate.GetAllAsync();
+            //Get canididates with Primary skill List
+            var PrimarySkillList = await _unitOfWork.Candidate.GetAllCandidatesWithSkillsAsync();
+
+            CandidateList = GetCandiateWithSkillset(CandidateList, PrimarySkillList);
+            return CandidateList;
         }
 
+
+        public IReadOnlyList<Candidate> GetCandiateWithSkillset(IReadOnlyList<Candidate> CandiateList, List<CandidatePrimarySkills> PrimarySkillList)
+        {
+            if (CandiateList != null && PrimarySkillList != null)
+            {
+                foreach (var candidate in CandiateList)
+                {
+
+                    candidate.PrimarySkills = PrimarySkillList.Where(x => x.CandidateID == candidate.Id).ToList();
+
+                }
+            }
+
+            return CandiateList;
+
+        }
         public async Task<Candidate> GetCandidateById(int id)
         {
             if (id > 0)

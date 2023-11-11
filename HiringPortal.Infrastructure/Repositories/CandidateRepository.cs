@@ -33,7 +33,7 @@ namespace HiringPortal.Infrastructure.Repositories
         /// <returns>int</returns>
         public async Task<int> AddAsync(Candidate entity)
         {
-                var result = await connection.ExecuteAsync(CandidateQueries.CreateCandidate, new { FirstName = entity.FirstName, LastName = entity.LastName, EmailID = entity.EmailID, PrimarySkill = entity.PrimarySkill, Active = entity.Active, entity.PhoneNumber },commandType:CommandType.Text,transaction:_dbTransaction);
+                var result = await connection.ExecuteAsync(CandidateQueries.CreateCandidate, new { FirstName = entity.FirstName, LastName = entity.LastName, EmailID = entity.EmailID, Active = entity.Active, entity.PhoneNumber },commandType:CommandType.Text,transaction:_dbTransaction);
                 return result;
          
         }
@@ -89,6 +89,18 @@ namespace HiringPortal.Infrastructure.Repositories
                 return result;
        
         }
+
+
+        public async Task<List<CandidatePrimarySkills>> GetAllCandidatesWithSkillsAsync()
+        {
+
+            var result = await connection.QueryAsync<CandidatePrimarySkills>(StoredProc.getAllCandidatesSkillset, commandType: CommandType.StoredProcedure, transaction: _dbTransaction);
+            return result.ToList();
+
+        }
+
+
+
 
     }
 }
