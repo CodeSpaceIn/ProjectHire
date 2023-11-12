@@ -11,6 +11,7 @@ namespace HiringPortal.Infrastructure
        
         public static string AllCandidates => "SELECT d.Id, d.[FirstName], d.[LastName], d.[EmailID], d.PrimarySkill, d.[PhoneNumber], d.[Address], d.[Active] from dbo.Candidate d;";
 
+
         public static string CandidateById => "SELECT * FROM [Contact] (NOLOCK) WHERE [ContactId] = @ContactId";
 
         public static string CreateCandidate =>
