@@ -15,16 +15,18 @@ namespace HiringPortal.Infrastructure.Repositories
     {
         public ICandidateRepository Candidate { get; }
           IDbTransaction _dbTransaction;
-
+        public IMasterDataRepository MasterData { get; }
       //  private IDbConnection _connection;
 
        private readonly IConfiguration _configuration;
 
         public UnitOfWork(IDbTransaction dbTransaction,
-                            ICandidateRepository candidateRepository   )
+                            ICandidateRepository candidateRepository ,IMasterDataRepository masterDataRepository  )
         {
             _dbTransaction = dbTransaction;
             Candidate = candidateRepository;
+            MasterData = masterDataRepository;
+
 
  
         }

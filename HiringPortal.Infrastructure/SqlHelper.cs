@@ -29,7 +29,19 @@ namespace HiringPortal.Infrastructure
 
         public static string getAllCandidatesSkillset => "[dbo].[Sp_GetAllCandidatesSkillSet]";
 
+        public static string getMasterdata => "[dbo].[GetMasterdata]";
 
 
+
+    }
+
+
+    public enum MasterDataType
+    {
+        HiringManger = 1,
+        InterviewPanel = 2,
+            Status =3,
+            Skill =4,
+            RoundType=5
     }
 }

@@ -27,6 +27,7 @@ namespace HiringPortal.Infrastructure.ServiceExtension
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICandidateRepository, CandidateRepository>();
+            services.AddScoped<IMasterDataRepository, MasterDataRepository>();
 
             
 
