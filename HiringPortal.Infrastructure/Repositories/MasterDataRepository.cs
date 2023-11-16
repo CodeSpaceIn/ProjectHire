@@ -61,6 +61,7 @@ namespace HiringPortal.Infrastructure.Repositories
 
         //Task<int> IGenericRepository<MasterData>.DeleteAsync(int id)
         //{
+
         //    throw new NotImplementedException();
         //}
 
